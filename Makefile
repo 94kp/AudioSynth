@@ -12,3 +12,4 @@ clean:
 
 cleanall:
 	rm *.txt *.out *.o *.wav tones
+

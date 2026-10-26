@@ -226,10 +226,162 @@ int main(int argc, char* argv[])
 
 
 
-        fclose(fp);
-        fp = NULL;
+        // fclose(fp);
+        // fp = NULL;
 
     }
+
+    else if (sw == ANALYSE_MODE)
+    {
+        if ((fp = fopen(argv[2], "rb")) == NULL)
+        {
+            printf("Error opening the file\n");
+            return 1;
+        }
+
+        // Extracting header information from the file we read
+        
+        int sdata = 0;
+
+        // RIFF chunk
+        // void* ChunkID = (float *)malloc(sizeof(char)/2); // should be 4 bytes
+
+        
+        char ChunkID[4];
+
+        fread(ChunkID, 1, 4, fp);
+
+        s_int ChunkSize;// = 36 + Subchunk2_size; // should be 4 bytes
+
+        fread(&ChunkSize, 1, 4, fp);
+
+        printf("ChunkSize: %d\n", ChunkSize);
+
+        // Subchunk2_size = ChunkSize - 36;
+
+        char FORMAT[4];// = {'W', 'A', 'V', 'E'}; // 4bytes
+
+        fread(FORMAT, 1, 4, fp);
+
+        for (int i = 0; i < 4; i++)
+        {
+            printf("%c\n", FORMAT[i]);
+        }
+
+        // fmt sub chunk
+        char Subchunk1ID[4];// = {'f', 'm', 't', ' '}; //4b
+
+        fread(Subchunk1ID, 1, 4, fp);
+
+        for (int i = 0; i < 4; i++)
+        {
+            printf("%c\n", Subchunk1ID[i]);
+        }
+
+        s_int Subchunk1_size;// = 16; //4b
+
+        fread(&Subchunk1_size, 1, 4, fp);
+
+        printf("Subchunk1_size: %d\n", Subchunk1_size);
+
+        short AudioFormat;// = 1; //2b
+
+        fread(&AudioFormat, 1, 2, fp);
+
+        printf("AudioFormat: %d\n", AudioFormat);
+
+        // for NumChannels
+
+        int NumChannels;
+
+        fread(&NumChannels, 1, 2, fp);
+
+        printf("NumChannels: %d\n", NumChannels);
+
+        s_int SampleRate;// = 44100; // 4b
+
+        fread(&SampleRate, 1, 4, fp);
+
+        printf("SampleRate: %d\n", SampleRate);
+
+        s_int ByteRate;// = SampleRate * NumChannels * BitsPerSample/8; // 4b
+
+        fread(&ByteRate, 1, 4, fp);
+
+        printf("ByteRate: %d\n", ByteRate);
+
+        short BlockAlign;// = NumChannels * BitsPerSample/8; // 2b
+
+        fread(&BlockAlign, 1, 2, fp);
+
+        printf("BlockAlign: %d", BlockAlign);
+
+        // for bits per sample
+        // sdata = sizeof(BitsPerSample);
+        s_int BitsPerSample;
+
+        fread(&BitsPerSample, 1, 2, fp);
+        printf("BitsPerSample: %d\n", BitsPerSample);
+
+        // short BitsPerSample = 16; // 2b
+        
+        // data sub chunk
+        char Subchunk2ID[4];// = {'d', 'a', 't','a'}; // 4b
+
+        fread(Subchunk2ID, 1, 4, fp);
+
+        for (int i = 0; i < 4; i++)
+        {
+            printf("%c\n", Subchunk2ID[i]);
+        }
+
+        // subchunk2 size
+
+        s_int Subchunk2_size;
+
+        fread(&Subchunk2_size, 1, 4, fp);
+
+        printf("Subchunk2_size: %d", Subchunk2_size);
+
+        // data
+
+        // Subchunk2_size = NumSamples * NumChannels * BitsPerSample/8;
+
+        char *data = (short *)malloc(Subchunk2_size);
+
+        if (data == NULL)
+        {
+            printf("unable to allocate memory to data\n");
+        }
+
+        fread(data, 1, Subchunk2_size, fp);
+
+
+        // verify if data read is correct
+
+        if (Subchunk2_size != NumSamples * NumChannels * BitsPerSample/8)
+        {
+            printf("Subchunk2_Size incorrect\n");
+            return 1;
+        }
+        
+        if (strcmp(Subchunk1ID, "fmt ") == 1)
+        {
+            printf("Subchunk1ID is incorrect\n");
+            return 1;
+        }
+
+        if ()
+
+
+        free(data);
+        data = NULL;
+
+    }
+
+    fclose(fp);
+    fp = NULL;
+
     
 
 
